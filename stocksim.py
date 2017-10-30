@@ -5,14 +5,15 @@ from enum import Enum
 from datetime import date, datetime
 import csv
 
+DataMode = Enum("Mode", "CSV JSON")
+
 
 class History(dict):
-    Mode = Enum("Mode", "CSV JSON")
     HistoryData = namedtuple("HistoryData", "open, high, low, close, volume")
 
-    def load(self, data, mode=Mode.CSV):
+    def load(self, data, mode=DataMode.CSV):
         # print("Mode: " + mode.name)
-        if mode == History.Mode.CSV:
+        if mode == DataMode.CSV:
             lines = data.splitlines()
             lines[0] = lines[0].lower()
             r = csv.DictReader(lines)
@@ -21,13 +22,21 @@ class History(dict):
             for row in r:
                 d = datetime.strptime(list(row.values())[0], "%Y-%M-%d").date()
                 self[d] = History.HistoryData(row["open"], row["high"], row["low"], row["close"], row["volume"])
-                print(d, self[d])
-        elif mode == History.Mode.JSON:
+                # print(d, self[d])
+        elif mode == DataMode.JSON:
             # Not implemented
             pass
         else:
             # Unsupported mode
             pass
+
+
+class Dividend(dict):
+    pass
+
+
+class TransactionHistory(dict):
+    pass
 
 
 def main():
@@ -41,9 +50,9 @@ def main():
     args = parser.parse_args()
 
     if args.json:
-        mode = History.Mode.JSON
+        mode = DataMode.JSON
     else:
-        mode = History.Mode.CSV
+        mode = DataMode.CSV
 
     h = History()
     with open(args.history) as f:
