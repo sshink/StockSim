@@ -6,6 +6,7 @@ from datetime import date, datetime
 import csv
 
 DataMode = Enum("Mode", "CSV JSON")
+TransactionType = Enum("TransactionType", "Cash Shares")
 
 
 class History(dict):
@@ -18,7 +19,7 @@ class History(dict):
             lines[0] = lines[0].lower()
             r = csv.DictReader(lines)
             # date,open,high,low,close,volume
-            self = dict()
+            # self = dict()
             for row in r:
                 d = datetime.strptime(list(row.values())[0], "%Y-%M-%d").date()
                 self[d] = History.HistoryData(row["open"], row["high"], row["low"], row["close"], row["volume"])
@@ -32,11 +33,43 @@ class History(dict):
 
 
 class Dividend(dict):
-    pass
+    def load(self, data, mode=DataMode.CSV):
+        if mode == DataMode.CSV:
+            lines = data.splitlines()
+            lines[0] = lines[0].lower()
+            reader = csv.DictReader(lines)
+            for row in reader:
+                r = list(row.values())
+                d = datetime.strptime(r[0], "%Y-%M-%d").date()
+                v = r[1]
+                if v > 0:
+                    self[d] = v
+        elif mode == DataMode.JSON:
+            # Not implemented
+            pass
+        else:
+            # Unsupported mode
+            pass
 
 
 class TransactionHistory(dict):
-    pass
+    def load(self, data, mode=DataMode.CSV):
+        if mode == DataMode.CSV:
+            lines = data.splitlines()
+            lines[0] = lines[0].lower()
+            reader = csv.DictReader(lines)
+            for row in reader:
+                r = list(row.values())
+                d = datetime.strptime(r[0], "%Y-%M-%d").date()
+                v = r[1]
+                if v != 0:
+                    self[d] = v
+        elif mode == DataMode.JSON:
+            # Not implemented
+            pass
+        else:
+            # Unsupported mode
+            pass
 
 
 def main():
