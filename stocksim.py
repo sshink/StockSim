@@ -33,6 +33,10 @@ class History(dict):
 
 
 class Dividend(dict):
+    def __init__(self, t=TransactionType.Cash):
+        super(Dividend, self).__init__()
+        self.type = t
+
     def load(self, data, mode=DataMode.CSV):
         if mode == DataMode.CSV:
             lines = data.splitlines()
@@ -53,6 +57,10 @@ class Dividend(dict):
 
 
 class TransactionHistory(dict):
+    def __init__(self, t=TransactionType.Cash):
+        super(TransactionHistory, self).__init__()
+        self.type = t
+
     def load(self, data, mode=DataMode.CSV):
         if mode == DataMode.CSV:
             lines = data.splitlines()
