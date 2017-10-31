@@ -92,26 +92,32 @@ class Stock:
         self.history = History()
         self.reinvest = False
         self.transactions = TransactionHistory()
-
-    def calcShares(self):
         self.shares = {date.min: 0}
-        sum = 0
-        for k in sorted(self.transactions):
-            if self.transactions.type == TransactionType.Shares:
-                sum += self.transactions[k]
-            elif self.transactions.type == TransactionType.Cash:
+
+    def calc_shares(self):
+        self.shares = self.calc_shares(self.transactions, self.history, self.reinvest)
+        return self.shares
+
+    @staticmethod
+    def calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False):
+        shares = {date.min: 0}
+        s = 0
+        for k in sorted(transactions):
+            if transactions.type == TransactionType.Shares:
+                s += transactions[k]
+            elif transactions.type == TransactionType.Cash:
                 # TODO: Handle exceptions
-                sum += self.transactions[k] / self.history[k]["close"]
+                s += transactions[k] / history[k]["close"]
             else:
                 # Unsupported transaction type
                 pass
-            self.shares[k] = sum
+            shares[k] = s
 
-        if self.reinvest:
+        if reinvest:
             # TODO reinvest dividend
             pass
 
-        return self.shares
+        return shares
 
 
 def main():
