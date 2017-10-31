@@ -80,6 +80,40 @@ class TransactionHistory(dict):
             pass
 
 
+class Stock:
+    # Shares
+    # MktValue
+    # Return
+    # Transactions
+    # Reinvest
+
+    def __init__(self):
+        super(Stock, self).__init__()
+        self.history = History()
+        self.reinvest = False
+        self.transactions = TransactionHistory()
+
+    def calcShares(self):
+        self.shares = {date.min: 0}
+        sum = 0
+        for k in sorted(self.transactions):
+            if self.transactions.type == TransactionType.Shares:
+                sum += self.transactions[k]
+            elif self.transactions.type == TransactionType.Cash:
+                # TODO: Handle exceptions
+                sum += self.transactions[k] / self.history[k]["close"]
+            else:
+                # Unsupported transaction type
+                pass
+            self.shares[k] = sum
+
+        if self.reinvest:
+            # TODO reinvest dividend
+            pass
+
+        return self.shares
+
+
 def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="TODO")
