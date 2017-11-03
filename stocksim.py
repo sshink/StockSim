@@ -2,7 +2,7 @@
 import argparse
 from collections import namedtuple
 from enum import Enum
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import csv
 
 DataMode = Enum("Mode", "CSV JSON")
@@ -81,10 +81,7 @@ class TransactionHistory(dict):
 
 
 class Stock:
-    # Shares
-    # MktValue
     # Return
-    # Transactions
     # Reinvest
 
     def __init__(self):
@@ -93,6 +90,8 @@ class Stock:
         self.reinvest = False
         self.transactions = TransactionHistory()
         self.shares = {date.min: 0}
+        self.cost = {date.min: 0}
+        self.value = {date.min: 0}
 
     def calc_shares(self):
         self.shares = self.calc_shares(self.transactions, self.history, self.reinvest)
@@ -100,7 +99,7 @@ class Stock:
 
     @staticmethod
     def calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False):
-        shares = {date.min: 0}
+        shares = {min(transactions) - timedelta(1): 0}
         s = 0
         for k in sorted(transactions):
             if transactions.type == TransactionType.Shares:
@@ -118,6 +117,42 @@ class Stock:
             pass
 
         return shares
+
+    def calc_cost(self):
+        self.cost = self.calc_cost(self.transactions, self.history)
+        return self.cost
+
+    @staticmethod
+    def calc_cost(transactions: TransactionHistory, history: History = None):
+        cost = {min(transactions) - timedelta(1): 0}
+        s = 0
+        for k in sorted(transactions):
+            if transactions.type == TransactionType.Shares:
+                # TODO: Handle exceptions
+                s += transactions[k] * history[k]["close"]
+            elif transactions.type == TransactionType.Cash:
+                s += transactions[k]
+            else:
+                # Unsupported transaction type
+                pass
+            cost[k] = s
+        return cost
+
+    def calc_value(self):
+        self.value = self.calc_value(self.shares, self.history)
+        return self.value
+
+    @staticmethod
+    def calc_value(shares, history: History):
+        value = {}
+        d = min(shares)
+        for k in sorted(shares):
+            while d < k:
+                value[d] = s * history[d]["close"]
+                d += timedelta(1)
+            s = shares[k]
+        value[d] = s * history[d]["close"]
+        return value
 
 
 def main():
