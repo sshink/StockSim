@@ -92,6 +92,7 @@ class Stock:
         self.shares = {date.min: 0}
         self.cost = {date.min: 0}
         self.value = {date.min: 0}
+        self.gain = {date.min: 0}
 
     def calc_shares(self):
         self.shares = self.calc_shares(self.transactions, self.history, self.reinvest)
@@ -146,6 +147,7 @@ class Stock:
     def calc_value(shares, history: History):
         value = {}
         d = min(shares)
+        s = 0
         for k in sorted(shares):
             while d < k:
                 value[d] = s * history[d]["close"]
@@ -154,6 +156,24 @@ class Stock:
         value[d] = s * history[d]["close"]
         return value
 
+    def calc_gain(self):
+        self.gain = self.calc_gain(self.value, self.cost)
+        return self.gain
+
+    @staticmethod
+    def calc_gain(value, cost):
+        gain = {}
+        d = max([min(value), min(cost)])
+        c = 0
+        for k in sorted(cost):
+            while d < k:
+                gain[d] = value[d] - c
+                d += timedelta(1)
+            c = cost[k]
+        gain[d] = value[d] - c
+        return gain
+
+    # calc_gainp
 
 def main():
     # Parse arguments
