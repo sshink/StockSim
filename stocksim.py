@@ -228,6 +228,16 @@ class Stock:
         return gainp
 
 
+class StockSim:
+    # Save
+    # Load
+    # Add stock
+    # Load stock
+    # Export stock
+    # Remove stock
+    pass
+
+
 def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="TODO")
