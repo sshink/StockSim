@@ -3,10 +3,16 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 ColumnLayout {
+    anchors.fill: parent
+
     RowLayout {
         id: topPane
+        Layout.fillWidth: true
+        anchors.top: parent.top
+
         Text {
             text: "Welcome to StockSim!"
+            Layout.fillWidth: true
         }
 
         Button {
@@ -22,17 +28,22 @@ ColumnLayout {
 
     RowLayout {
         id: rowLayout
+        Layout.fillHeight: true
+        Layout.fillWidth: true
 
-        Column {
+        ColumnLayout {
             id: leftPane
-            width: 200
-            height: 400
+            Layout.fillHeight: true
+            anchors.left: parent.left
 
             ListView {
                 id: listView
                 width: 110
-                height: 260
-                highlight: Rectangle { color: "lightsteelblue" }
+                anchors.top: parent.top
+                Layout.fillHeight: true
+                highlight: Rectangle {
+                    color: "lightsteelblue"
+                }
                 model: ListModel {
                     ListElement {
                         name: "Grey"
@@ -87,6 +98,7 @@ ColumnLayout {
             Button {
                 id: addStock
                 text: "Add"
+                anchors.top: listView.bottom
             }
 
             Button {
@@ -102,12 +114,19 @@ ColumnLayout {
             Button {
                 id: deleteStock
                 text: "Delete"
+                anchors.bottom: parent.bottom
             }
         }
         ColumnLayout {
             id: rightPane
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            anchors.right: parent.right
 
             TabBar {
+                anchors.top: parent.top
+                anchors.right: parent.right
+
                 TabButton {
                     text: qsTr("History")
                 }
@@ -122,29 +141,41 @@ ColumnLayout {
             }
 
             StackLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                anchors.bottom: parent.bottom
 
                 ColumnLayout {
                     id: historyTab
+                    anchors.bottom: parent.bottom
 
                     TextArea {
-                        id: textArea
+                        id: historyData
                         text: qsTr("Text Area")
                         Layout.fillHeight: true
                         Layout.fillWidth: true
+                        anchors.top: parent.top
                     }
 
                     RowLayout {
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+
                         Button {
                             id: testbtn
                             text: qsTr("Open file")
                             onClicked: {
-                                highlighted = true
-                                testslots.open_history()
-                                highlighted = false
+                                statusBar.text = testslots.open_history()
+                                statusBar.update()
                             }
                         }
                         Button {
                             text: qsTr("Load")
+                            onClicked: {
+                                stocksim.load_history(historyData.text)
+                                statusBar.text = "History loaded"
+                                statusBar.update()
+                            }
                         }
                     }
                 }
@@ -171,13 +202,16 @@ ColumnLayout {
         }
     }
 
+    Text {
+        id: statusBar
+        text: qsTr("Ready")
+        Layout.fillWidth: true
+        anchors.bottom: parent.bottom
+    }
     Connections {
         target: testbtn
         onClicked: {
-            addStock.highlighted = true
-            textArea.text = testslots.open_history()
-            textArea.update()
-            addStock.highlighted = false
+
         }
     }
 }

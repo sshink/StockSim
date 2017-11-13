@@ -35,6 +35,17 @@ class Slots(QObject):
         print(r)
         return r
 
+
+class StockSimGui(QObject, stocksim.StockSim):
+    def __init__(self):
+        super(StockSimGui, self).__init__()
+
+    @pyqtSlot(str)
+    @pyqtSlot(str, int)
+    def load_history(self, data, i=0):
+        self.stocks[i].history.load(data)
+        print(repr(self.stocks[i].history))
+
     @pyqtSlot()
     def test(self):
         print("TEST")
@@ -43,18 +54,23 @@ class Slots(QObject):
 class MainWindow(QQuickView):
     def __init__(self, slots):
         super(MainWindow, self).__init__()
-        self.rootContext().setContextProperty("testslots", slots)
+        context = self.rootContext()
+        for (name, slot) in slots:
+            context.setContextProperty(name, slot)
+
         print(repr(self.rootContext().contextProperty("testslots").open_history))
-        print(repr(self.rootContext().contextProperty("testslots").test))
+        print(repr(self.rootContext().contextProperty("stocksim").test))
         self.setTitle("StockSim")
         self.setSource(QUrl("uiTest.qml"))
         self.setResizeMode(QQuickView.SizeRootObjectToView)
-        ss = stocksim.StockSim()
 
+
+ss = StockSimGui()
+print("SS")
 
 if __name__ == '__main__':
     app = QGuiApplication(sys.argv)
     slots = Slots()
-    window = MainWindow(slots)
+    window = MainWindow([("testslots", slots), ("stocksim", ss)])
     window.show()
     sys.exit(app.exec())

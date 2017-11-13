@@ -229,13 +229,16 @@ class Stock:
 
 
 class StockSim:
+    def __init__(self):
+        super(StockSim, self).__init__()
+        self.stocks = [Stock()]
+
     # Save
     # Load
     # Add stock
     # Load stock
     # Export stock
     # Remove stock
-    pass
 
 
 def main():
