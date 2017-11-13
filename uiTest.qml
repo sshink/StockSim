@@ -135,7 +135,13 @@ ColumnLayout {
 
                     RowLayout {
                         Button {
+                            id: testbtn
                             text: qsTr("Open file")
+                            onClicked: {
+                                highlighted = true
+                                testslots.open_history()
+                                highlighted = false
+                            }
                         }
                         Button {
                             text: qsTr("Load")
@@ -162,6 +168,16 @@ ColumnLayout {
                     }
                 }
             }
+        }
+    }
+
+    Connections {
+        target: testbtn
+        onClicked: {
+            addStock.highlighted = true
+            textArea.text = testslots.open_history()
+            textArea.update()
+            addStock.highlighted = false
         }
     }
 }
