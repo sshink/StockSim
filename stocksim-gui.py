@@ -46,6 +46,11 @@ class StockSimGui(QObject, stocksim.StockSim):
         self.stocks[i].history.load(data)
         print(repr(self.stocks[i].history))
 
+    @pyqtSlot(str)
+    @pyqtSlot(str, int)
+    def load_transactions(self, data, i=0):
+        self.stocks[i].transactions.load(data)
+
     @pyqtSlot()
     def test(self):
         print("TEST")

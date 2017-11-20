@@ -3,7 +3,6 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 ColumnLayout {
-    anchors.fill: parent
 
     RowLayout {
         id: topPane
@@ -39,6 +38,7 @@ ColumnLayout {
             ListView {
                 id: listView
                 width: 110
+                Layout.minimumHeight: 100
                 anchors.top: parent.top
                 Layout.fillHeight: true
                 highlight: Rectangle {
@@ -98,7 +98,6 @@ ColumnLayout {
             Button {
                 id: addStock
                 text: "Add"
-                anchors.top: listView.bottom
             }
 
             Button {
@@ -124,6 +123,7 @@ ColumnLayout {
             anchors.right: parent.right
 
             TabBar {
+                id: bar
                 anchors.top: parent.top
                 anchors.right: parent.right
 
@@ -144,6 +144,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 anchors.bottom: parent.bottom
+                currentIndex: bar.currentIndex
 
                 ColumnLayout {
                     id: historyTab
@@ -151,7 +152,7 @@ ColumnLayout {
 
                     TextArea {
                         id: historyData
-                        text: qsTr("Text Area")
+                        text: qsTr("History data")
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         anchors.top: parent.top
@@ -162,7 +163,7 @@ ColumnLayout {
                         anchors.right: parent.right
 
                         Button {
-                            id: testbtn
+                            id: openHistory
                             text: qsTr("Open file")
                             onClicked: {
                                 statusBar.text = testslots.open_history()
@@ -170,6 +171,7 @@ ColumnLayout {
                             }
                         }
                         Button {
+                            id: loadHistory
                             text: qsTr("Load")
                             onClicked: {
                                 stocksim.load_history(historyData.text)
@@ -183,7 +185,23 @@ ColumnLayout {
                 ColumnLayout {
                     id: transactionsTab
 
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        RadioButton {
+                            id: shares
+                            text: qsTr("Shares")
+                        }
+
+                        RadioButton {
+                            id: cash
+                            text: qsTr("Cash")
+                        }
+
+                    }
+
                     TextArea {
+                        id: transactionData
                         text: "Transactions"
                         Layout.fillHeight: true
                         Layout.fillWidth: true
@@ -191,10 +209,17 @@ ColumnLayout {
 
                     RowLayout {
                         Button {
+                            id: openTransactions
                             text: qsTr("Open file")
                         }
                         Button {
+                            id: loadTransactions
                             text: qsTr("Load")
+                            onClicked: {
+                                stocksim.load_transactions(transactionData.text)
+                                statusBar.text = "Transactions loaded"
+                                statusBar.update()
+                            }
                         }
                     }
                 }
