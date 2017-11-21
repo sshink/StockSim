@@ -130,11 +130,11 @@ class Stock:
         self.gainp = {date.min: 0}
 
     def calc_shares(self):
-        self.shares = self.calc_shares(self.transactions, self.history, self.reinvest)
+        self.shares = self._calc_shares(self.transactions, self.history, self.reinvest)
         return self.shares
 
     @staticmethod
-    def calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False):
+    def _calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False):
         shares = {min(transactions) - timedelta(1): 0}
         s = 0
         for k in sorted(transactions):
@@ -155,11 +155,11 @@ class Stock:
         return shares
 
     def calc_cost(self):
-        self.cost = self.calc_cost(self.transactions, self.history)
+        self.cost = Stock._calc_cost(self.transactions, self.history)
         return self.cost
 
     @staticmethod
-    def calc_cost(transactions: TransactionHistory, history: History = None):
+    def _calc_cost(transactions: TransactionHistory, history: History = None):
         cost = {min(transactions) - timedelta(1): 0}
         s = 0
         for k in sorted(transactions):
@@ -175,11 +175,11 @@ class Stock:
         return cost
 
     def calc_value(self):
-        self.value = self.calc_value(self.shares, self.history)
+        self.value = Stock._calc_value(self.shares, self.history)
         return self.value
 
     @staticmethod
-    def calc_value(shares, history: History):
+    def _calc_value(shares, history: History):
         value = {}
         d = min(shares)
         s = 0
@@ -192,11 +192,11 @@ class Stock:
         return value
 
     def calc_gain(self):
-        self.gain = self.calc_gain(self.value, self.cost)
+        self.gain = self._calc_gain(self.value, self.cost)
         return self.gain
 
     @staticmethod
-    def calc_gain(value, cost):
+    def _calc_gain(value, cost):
         gain = {}
         d = max([min(value), min(cost)])
         c = 0
@@ -209,11 +209,11 @@ class Stock:
         return gain
 
     def calc_gainp(self):
-        self.gainp = self.calc_gainp(self.gain, self.cost)
+        self.gainp = self._calc_gainp(self.gain, self.cost)
         return self.gainp
 
     @staticmethod
-    def calc_gainp(gain, cost):
+    def _calc_gainp(gain, cost):
         gainp = {}
         d = max([min(gain), min(cost)])
         c = 0
