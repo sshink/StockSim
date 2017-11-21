@@ -197,7 +197,6 @@ ColumnLayout {
                             id: cash
                             text: qsTr("Cash")
                         }
-
                     }
 
                     TextArea {
@@ -223,6 +222,46 @@ ColumnLayout {
                         }
                     }
                 }
+
+                ColumnLayout {
+                    id: valueTab
+
+                    RowLayout {
+                        ColumnLayout {
+                            Text {
+                                text: qsTr("Shares")
+                            }
+                            TextArea {
+                                id: sharesData
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                            }
+                        }
+                        ColumnLayout {
+                            Text {
+                                text: qsTr("Value")
+                            }
+                            TextArea {
+                                id: valueData
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                    Button {
+                        id: calcValue
+                        text: "Calculate"
+                        onClicked: {
+                            stocksim.calc_stock_shares(0)
+                            stocksim.calc_stock_value(0)
+
+                            sharesData.update()
+                            valueData.update()
+                            statusBar.text = "Value data updated"
+                            statusBar.update()
+                        }
+                    }
+                }
             }
         }
     }
@@ -232,11 +271,5 @@ ColumnLayout {
         text: qsTr("Ready")
         Layout.fillWidth: true
         anchors.bottom: parent.bottom
-    }
-    Connections {
-        target: testbtn
-        onClicked: {
-
-        }
     }
 }
