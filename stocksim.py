@@ -39,8 +39,8 @@ class History(dict):
             # date,open,high,low,close,volume
             # self = dict()
             for row in r:
-                d = datetime.strptime(list(row.values())[0], "%Y-%M-%d").date()
-                self[d] = History.HistoryData(row["open"], row["high"], row["low"], row["close"], row["volume"])
+                d = datetime.strptime(list(row.values())[0], "%Y-%m-%d").date()
+                self[d] = History.HistoryData(float(row["open"]), float(row["high"]), float(row["low"]), float(row["close"]), int(row["volume"]))
                 # print(d, self[d])
         elif mode == DataMode.JSON:
             # Not implemented
@@ -78,7 +78,7 @@ class Dividend(dict):
             reader = csv.DictReader(lines)
             for row in reader:
                 r = list(row.values())
-                d = datetime.strptime(r[0], "%Y-%M-%d").date()
+                d = datetime.strptime(r[0], "%Y-%m-%d").date()
                 v = r[1]
                 if v > 0:
                     self[d] = v
@@ -102,8 +102,8 @@ class TransactionHistory(dict):
             reader = csv.DictReader(lines)
             for row in reader:
                 r = list(row.values())
-                d = datetime.strptime(r[0], "%Y-%M-%d").date()
-                v = r[1]
+                d = datetime.strptime(r[0], "%Y-%m-%d").date()
+                v = float(r[1])
                 if v != 0:
                     self[d] = v
         elif mode == DataMode.JSON:
@@ -142,7 +142,8 @@ class Stock:
                 s += transactions[k]
             elif transactions.type == TransactionType.Cash:
                 # TODO: Handle exceptions
-                s += transactions[k] / history[k]["close"]
+                print(history[k].close)
+                s += transactions[k] / history[k].close
             else:
                 # Unsupported transaction type
                 pass
@@ -165,7 +166,7 @@ class Stock:
         for k in sorted(transactions):
             if transactions.type == TransactionType.Shares:
                 # TODO: Handle exceptions
-                s += transactions[k] * history[k]["close"]
+                s += transactions[k] * history[k].close
             elif transactions.type == TransactionType.Cash:
                 s += transactions[k]
             else:
@@ -185,10 +186,14 @@ class Stock:
         s = 0
         for k in sorted(shares):
             while d < k:
-                value[d] = s * history[d]["close"]
+                # TODO: Handle exceptions
+                if s == 0:
+                    value[d] = 0
+                else:
+                    value[d] = s * history[d].close
                 d += timedelta(1)
             s = shares[k]
-        value[d] = s * history[d]["close"]
+        value[d] = s * history[d].close
         return value
 
     def calc_gain(self):

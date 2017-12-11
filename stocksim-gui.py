@@ -37,9 +37,6 @@ class StockSimGui(QObject, stocksim.StockSim):
 
     @pyqtSlot()
     def open_history(self):
-        # dialog = FileDialog.create()
-        # fd = dialog.findChild(QObject, "fileDialog")
-        self.fileDialog = FileDialog.create()
         self.fileDialog.setProperty("title", "Open history")
         self.fileDialog.accepted.connect(self.open_history_file)
         self.fileDialog.open()
@@ -58,6 +55,19 @@ class StockSimGui(QObject, stocksim.StockSim):
     def load_history(self, data, i=0):
         self.stocks[i].history.load(data)
         # print(repr(self.stocks[i].history))
+
+    @pyqtSlot()
+    def open_transactions(self):
+        self.fileDialog.setProperty("title", "Open transaction history")
+        self.fileDialog.accepted.connect(self.open_transactions_file)
+        self.fileDialog.open()
+
+    @pyqtSlot()
+    def open_transactions_file(self):
+        self.fileDialog.accepted.disconnect(self.open_transactions_file)
+        with open(self.fileDialog.property("fileUrl").toLocalFile()) as file:
+            data = file.read()
+            root.update_transactions(data)
 
     @pyqtSlot(str)
     @pyqtSlot(str, int)
@@ -121,5 +131,6 @@ if __name__ == '__main__':
     window = MainWindow([("testslots", slots), ("stocksim", ss)])
     root = window.rootObject()
     FileDialog = QQmlComponent(window.engine(), "fileDialog.qml")
+    ss.fileDialog = FileDialog.create()
     window.show()
     sys.exit(app.exec())

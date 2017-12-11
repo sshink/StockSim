@@ -216,6 +216,9 @@ ColumnLayout {
                         Button {
                             id: openTransactions
                             text: qsTr("Open file")
+                            onClicked: {
+                                stocksim.open_transactions()
+                            }
                         }
                         Button {
                             id: loadTransactions
@@ -281,5 +284,9 @@ ColumnLayout {
 
     function update_history(data){
         historyData.text = data
+    }
+
+    function update_transactions(data){
+        transactionData.text = data
     }
 }
