@@ -155,7 +155,7 @@ class Stock:
         return shares
 
     def calc_cost(self):
-        self.cost = Stock._calc_cost(self.transactions, self.history)
+        self.cost = self._calc_cost(self.transactions, self.history)
         return self.cost
 
     @staticmethod
@@ -175,7 +175,7 @@ class Stock:
         return cost
 
     def calc_value(self):
-        self.value = Stock._calc_value(self.shares, self.history)
+        self.value = self._calc_value(self.shares, self.history)
         return self.value
 
     @staticmethod

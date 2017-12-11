@@ -35,61 +35,66 @@ ColumnLayout {
             Layout.fillHeight: true
             anchors.left: parent.left
 
-            ListView {
-                id: listView
-                width: 110
+            ScrollView {
                 Layout.minimumHeight: 100
                 anchors.top: parent.top
                 Layout.fillHeight: true
-                highlight: Rectangle {
-                    color: "lightsteelblue"
-                }
-                model: ListModel {
-                    ListElement {
-                        name: "Grey"
-                        colorCode: "grey"
-                    }
 
-                    ListElement {
-                        name: "Red"
-                        colorCode: "red"
+                ListView {
+                    id: listView
+                    x: 0
+                    y: 0
+                    width: 110
+                    highlight: Rectangle {
+                        color: "lightsteelblue"
                     }
-
-                    ListElement {
-                        name: "Blue"
-                        colorCode: "blue"
-                    }
-
-                    ListElement {
-                        name: "Green"
-                        colorCode: "green"
-                    }
-                }
-                delegate: Item {
-                    x: 5
-                    width: 80
-                    height: 40
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: listView.view.currentIndex = index
-                    }
-
-                    Row {
-                        id: row1
-                        x: 0
-                        y: 0
-                        spacing: 10
-                        Rectangle {
-                            width: 40
-                            height: 40
-                            color: colorCode
+                    model: ListModel {
+                        ListElement {
+                            name: "Grey"
+                            colorCode: "grey"
                         }
 
-                        Text {
-                            text: name
-                            font.bold: true
-                            anchors.verticalCenter: parent.verticalCenter
+                        ListElement {
+                            name: "Red"
+                            colorCode: "red"
+                        }
+
+                        ListElement {
+                            name: "Blue"
+                            colorCode: "blue"
+                        }
+
+                        ListElement {
+                            name: "Green"
+                            colorCode: "green"
+                        }
+                    }
+                    delegate: Item {
+                        x: 5
+                        width: 80
+                        height: 40
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: listView.view.currentIndex = index
+                        }
+
+                        Row {
+                            id: row1
+                            x: 0
+                            y: 0
+                            spacing: 10
+                            Rectangle {
+                                width: 40
+                                height: 40
+                                color: colorCode
+                            }
+
+                            Text {
+                                text: name
+                                font.bold: true
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
                         }
                     }
                 }
@@ -150,12 +155,14 @@ ColumnLayout {
                     id: historyTab
                     anchors.bottom: parent.bottom
 
-                    TextArea {
-                        id: historyData
-                        text: qsTr("History data")
+                    ScrollView {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
-                        anchors.top: parent.top
+
+                        TextArea {
+                            id: historyData
+                            text: qsTr("History data")
+                        }
                     }
 
                     RowLayout {
@@ -166,8 +173,7 @@ ColumnLayout {
                             id: openHistory
                             text: qsTr("Open file")
                             onClicked: {
-                                statusBar.text = testslots.open_history()
-                                statusBar.update()
+                                stocksim.open_history()
                             }
                         }
                         Button {
@@ -272,4 +278,6 @@ ColumnLayout {
         Layout.fillWidth: true
         anchors.bottom: parent.bottom
     }
+
+    function update_history(data){}
 }

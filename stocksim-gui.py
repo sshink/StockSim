@@ -23,22 +23,37 @@ import stocksim
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtQuick import QQuickView
+from PyQt5.QtQml import QQmlComponent, QQmlEngine
 
 
 class Slots(QObject):
     def __init__(self):
         super(Slots, self).__init__()
 
-    @pyqtSlot(result=str)
-    def open_history(self):
-        r = "History opened at " + repr(datetime.utcnow())
-        print(r)
-        return r
-
 
 class StockSimGui(QObject, stocksim.StockSim):
     def __init__(self):
         super(StockSimGui, self).__init__()
+
+    @pyqtSlot()
+    def open_history(self):
+        # dialog = FileDialog.create()
+        # fd = dialog.findChild(QObject, "fileDialog")
+        self.fileDialog = FileDialog.create()
+        self.fileDialog.setProperty("title", "Open history")
+        self.fileDialog.accepted.connect(self.open_history_file)
+        self.fileDialog.open()
+
+    @pyqtSlot(result=str)
+    def open_history_file(self):
+        self.fileDialog.accepted.disconnect(self.open_history_file)
+        r = "History opened at " + repr(datetime.utcnow())
+        file = self.fileDialog.property("fileUrl")
+        print(file)
+        root = window.rootObject()
+        root.update_history("Test")
+        # self.history_opened.emit()
+        return r
 
     @pyqtSlot(str)
     @pyqtSlot(str, int)
@@ -63,10 +78,28 @@ class StockSimGui(QObject, stocksim.StockSim):
         print("calc_value")
         self.stocks[i].calc_value()
 
+    history_opened = pyqtSignal()
 
     @pyqtSlot()
     def test(self):
         print("TEST")
+
+
+# class FileDialog(QObject):
+#     def __new__(cls, engine: QQmlEngine):
+#         print(1)
+#         component = QQmlComponent(engine, "fileDialog.qml")
+#         print(2)
+#
+#         return super(FileDialog, cls).__new__(cls)  # component.create()
+#
+#     def __init__(self, engine: QQmlEngine):
+#         print(3)
+#         super(FileDialog, self).__init__()
+#         o = QQmlComponent(engine, "fileDialog.qml").create()
+#         print(4)
+#         self.__dict__ = o.__dict__.copy()
+#         print("Success!")
 
 
 class MainWindow(QQuickView):
@@ -76,7 +109,6 @@ class MainWindow(QQuickView):
         for (name, slot) in slots:
             context.setContextProperty(name, slot)
 
-        print(repr(self.rootContext().contextProperty("testslots").open_history))
         print(repr(self.rootContext().contextProperty("stocksim").test))
         self.setTitle("StockSim")
         self.setSource(QUrl("uiTest.qml"))
@@ -84,11 +116,11 @@ class MainWindow(QQuickView):
 
 
 ss = StockSimGui()
-print("SS")
 
 if __name__ == '__main__':
     app = QGuiApplication(sys.argv)
     slots = Slots()
     window = MainWindow([("testslots", slots), ("stocksim", ss)])
+    FileDialog = QQmlComponent(window.engine(), "fileDialog.qml")
     window.show()
     sys.exit(app.exec())
