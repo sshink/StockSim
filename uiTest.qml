@@ -279,5 +279,7 @@ ColumnLayout {
         anchors.bottom: parent.bottom
     }
 
-    function update_history(data){}
+    function update_history(data){
+        historyData.text = data
+    }
 }

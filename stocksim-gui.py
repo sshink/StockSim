@@ -48,11 +48,9 @@ class StockSimGui(QObject, stocksim.StockSim):
     def open_history_file(self):
         self.fileDialog.accepted.disconnect(self.open_history_file)
         r = "History opened at " + repr(datetime.utcnow())
-        file = self.fileDialog.property("fileUrl")
-        print(file)
-        root = window.rootObject()
-        root.update_history("Test")
-        # self.history_opened.emit()
+        with open(self.fileDialog.property("fileUrl").toLocalFile()) as file:
+            data = file.read()
+            root.update_history(data)
         return r
 
     @pyqtSlot(str)
@@ -121,6 +119,7 @@ if __name__ == '__main__':
     app = QGuiApplication(sys.argv)
     slots = Slots()
     window = MainWindow([("testslots", slots), ("stocksim", ss)])
+    root = window.rootObject()
     FileDialog = QQmlComponent(window.engine(), "fileDialog.qml")
     window.show()
     sys.exit(app.exec())
