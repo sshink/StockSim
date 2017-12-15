@@ -49,6 +49,22 @@ class History(dict):
             # Unsupported mode
             pass
 
+    def get_latest(self, date: date):
+        if date in self:
+            return self[date]
+        elif date > min(self.keys()):
+            return self[max([d for d in self.keys() if d < date])]
+        else:
+            return None
+
+    def get_next(self, date: date):
+        if date in self:
+            return self[date]
+        elif date < max(self.keys()):
+            return self[min([d for d in self.keys() if d > date])]
+        else:
+            return None
+
 
 class Dividend(dict):
     def __init__(self, t=TransactionType.Cash):
