@@ -180,20 +180,26 @@ class Stock:
         return self.value
 
     @staticmethod
-    def _calc_value(shares, history: History):
+    def _calc_value(shares, history: History, until: date = None):
+        if until is None:
+            until = max(history)
         value = {}
-        d = min(shares)
-        s = 0
+        date = min(shares)
+        # s = 0
         for k in sorted(shares):
-            while d < k:
+            while date < k:
                 # TODO: Handle exceptions
                 if s == 0:
-                    value[d] = 0
+                    value[date] = 0
                 else:
-                    value[d] = s * history[d].close
-                d += timedelta(1)
+                    if date in history:
+                        value[date] = s * history[date].close
+                date += timedelta(1)
             s = shares[k]
-        value[d] = s * history[d].close
+        if date in history:
+            value[date] = s * history[date].close
+        for d in [d for d in history if (d > date) and (d <= until)]:
+            value[d] = s * history[d].close  # ordered()?
         return value
 
     def calc_gain(self):
