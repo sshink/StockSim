@@ -142,8 +142,8 @@ class Stock:
                 s += transactions[k]
             elif transactions.type == TransactionType.Cash:
                 # TODO: Handle exceptions
-                print(history[k].close)
-                s += transactions[k] / history[k].close
+                price = history.get_latest(k).close
+                s += transactions[k] / price
             else:
                 # Unsupported transaction type
                 pass
