@@ -209,14 +209,18 @@ class Stock:
     @staticmethod
     def _calc_gain(value, cost):
         gain = {}
-        d = max([min(value), min(cost)])
-        c = 0
+        date = max([min(value), min(cost)])
+        # c = 0
         for k in sorted(cost):
-            while d < k:
-                gain[d] = value[d] - c
-                d += timedelta(1)
+            while date < k:
+                if date in value:
+                    gain[date] = value[date] - c
+                date += timedelta(1)
             c = cost[k]
-        gain[d] = value[d] - c
+        if date in value:
+            gain[date] = value[date] - c
+        for d in [d for d in value if (d > date)]:
+            gain[d] = value[d] - c
         return gain
 
     def calc_gainp(self):
@@ -226,16 +230,20 @@ class Stock:
     @staticmethod
     def _calc_gainp(gain, cost):
         gainp = {}
-        d = max([min(gain), min(cost)])
+        date = max([min(gain), min(cost)])
         c = 0
         for k in sorted(cost):
-            while d < k:
-                if c != 0:
-                    gainp[d] = gain[d] / c
-                d += timedelta(1)
+            if c != 0:
+                while date < k:
+                    if date in gain:
+                        gainp[date] = gain[date] / c
+                    date += timedelta(1)
             c = cost[k]
         if c != 0:
-            gainp[d] = gain[d] / c
+            if date in gain:
+                gainp[date] = gain[date] / c
+            for d in [d for d in gain if (d > date)]:
+                gainp[d] = gain[d] / c
         return gainp
 
 
