@@ -79,7 +79,7 @@ class Dividend(dict):
             for row in reader:
                 r = list(row.values())
                 d = datetime.strptime(r[0], "%Y-%m-%d").date()
-                v = r[1]
+                v = float(r[1])
                 if v > 0:
                     self[d] = v
         elif mode == DataMode.JSON:
@@ -123,6 +123,7 @@ class Stock:
         self.history = History()
         self.reinvest = False
         self.transactions = TransactionHistory()
+        self.dividend = Dividend()
         self.shares = {date.min: 0}
         self.cost = {date.min: 0}
         self.value = {date.min: 0}
