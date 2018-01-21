@@ -43,9 +43,10 @@ def main():
     with open("dividend.txt") as file:
         # Load dividend
         data = file.read()
-        ss.stocks[0].dividend.load(data)
-    for i in sorted(ss.stocks[0].dividend.items()):
-        print(i)
+        ss.stocks[0].history.dividend = DividendHistory()
+        ss.stocks[0].history.dividend.load(data)
+    # for i in sorted(ss.stocks[0].dividend.items()):
+    #     print(i)
 
     # Calculate shares
     print()

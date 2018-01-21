@@ -27,8 +27,12 @@ DataMode = Enum("Mode", "CSV JSON")
 TransactionType = Enum("TransactionType", "Cash Shares")
 
 
-class History(dict):
+class StockHistory(dict):
     HistoryData = namedtuple("HistoryData", "open, high, low, close, volume")
+
+    def __init__(self):
+        super(StockHistory, self).__init__()
+        self.dividend = None
 
     def load(self, data, mode=DataMode.CSV):
         # print("Mode: " + mode.name)
@@ -40,7 +44,8 @@ class History(dict):
             # self = dict()
             for row in r:
                 d = datetime.strptime(list(row.values())[0], "%Y-%m-%d").date()
-                self[d] = History.HistoryData(float(row["open"]), float(row["high"]), float(row["low"]), float(row["close"]), int(row["volume"]))
+                self[d] = StockHistory.HistoryData(float(row["open"]), float(row["high"]), float(row["low"]),
+                                                   float(row["close"]), int(row["volume"]))
                 # print(d, self[d])
         elif mode == DataMode.JSON:
             # Not implemented
@@ -66,9 +71,9 @@ class History(dict):
             return None
 
 
-class Dividend(dict):
+class DividendHistory(dict):
     def __init__(self, t=TransactionType.Cash):
-        super(Dividend, self).__init__()
+        super(DividendHistory, self).__init__()
         self.type = t
 
     def load(self, data, mode=DataMode.CSV):
@@ -120,10 +125,9 @@ class Stock:
 
     def __init__(self):
         super(Stock, self).__init__()
-        self.history = History()
+        self.history = StockHistory()
         self.reinvest = False
         self.transactions = TransactionHistory()
-        self.dividend = Dividend()
         self.shares = {date.min: 0}
         self.cost = {date.min: 0}
         self.value = {date.min: 0}
@@ -131,15 +135,15 @@ class Stock:
         self.gainp = {date.min: 0}
 
     def calc_shares(self):
-        self.shares = self._calc_shares(self.transactions, self.history, self.reinvest, self.dividend)
+        self.shares = self._calc_shares(self.transactions, self.history, self.reinvest)
         return self.shares
 
     @staticmethod
-    def _calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False, dividend=None):
+    def _calc_shares(transactions: TransactionHistory, history: StockHistory = None, reinvest=False):
         shares = {min(transactions) - timedelta(1): 0}
         s = 0
-        if reinvest and dividend is not None:
-            div_dates = sorted(dividend)
+        if reinvest and history.dividend is not None:
+            div_dates = sorted(history.dividend)
             # Find first applicable dividend date (shares > 0)
             i = 0
             while div_dates[i] < min(transactions):
@@ -149,11 +153,11 @@ class Stock:
                 # Calculate dividend up to k
                 while (k >= div_dates[i]) and (i < len(div_dates)):
                     # Reinvest dividend
-                    if dividend.type == TransactionType.Shares:
-                        s += s * dividend[div_dates[i]]
-                    elif dividend.type == TransactionType.Cash:
+                    if history.dividend.type == TransactionType.Shares:
+                        s += s * history.dividend[div_dates[i]]
+                    elif history.dividend.type == TransactionType.Cash:
                         price = history.get_latest(div_dates[i]).close
-                        s += s * dividend[div_dates[i]] / price
+                        s += s * history.dividend[div_dates[i]] / price
                     else:
                         # Unsupported transaction type
                         pass
@@ -174,11 +178,11 @@ class Stock:
             # Calculate dividend after last transaction
             while i < len(div_dates):
                 # Reinvest dividend
-                if dividend.type == TransactionType.Shares:
-                    s += s * dividend[div_dates[i]]
-                elif dividend.type == TransactionType.Cash:
+                if history.dividend.type == TransactionType.Shares:
+                    s += s * history.dividend[div_dates[i]]
+                elif history.dividend.type == TransactionType.Cash:
                     price = history.get_latest(div_dates[i]).close
-                    s += s * dividend[div_dates[i]] / price
+                    s += s * history.dividend[div_dates[i]] / price
                 else:
                     # Unsupported transaction type
                     pass
@@ -204,7 +208,7 @@ class Stock:
         return self.cost
 
     @staticmethod
-    def _calc_cost(transactions: TransactionHistory, history: History = None):
+    def _calc_cost(transactions: TransactionHistory, history: StockHistory = None):
         cost = {min(transactions) - timedelta(1): 0}
         s = 0
         for k in sorted(transactions):
@@ -224,7 +228,7 @@ class Stock:
         return self.value
 
     @staticmethod
-    def _calc_value(shares, history: History, until: date = None):
+    def _calc_value(shares, history: StockHistory, until: date = None):
         if until is None:
             until = max(history)
         value = {}
@@ -319,7 +323,7 @@ def main():
     else:
         mode = DataMode.CSV
 
-    h = History()
+    h = StockHistory()
     with open(args.history) as f:
         h.load(f.read(), mode)
 
