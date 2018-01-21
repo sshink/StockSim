@@ -240,8 +240,8 @@ class Stock:
                         value[date] = s * history[date].close
                 date += timedelta(1)
             s = shares[k]
-        if date in history:
-            value[date] = s * history[date].close
+            value[k] = s * history.get_latest(k).close
+
         for d in [d for d in history if (d > date) and (d <= until)]:
             value[d] = s * history[d].close  # ordered()?
         return value
