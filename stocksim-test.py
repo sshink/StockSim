@@ -50,6 +50,7 @@ def main():
     # Calculate shares
     print()
     print("---- Shares ----")
+    ss.stocks[0].reinvest = True
     ss.stocks[0].calc_shares()
     for i in sorted(ss.stocks[0].shares.items()):
         print(i)

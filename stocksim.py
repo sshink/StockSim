@@ -131,29 +131,57 @@ class Stock:
         self.gainp = {date.min: 0}
 
     def calc_shares(self):
-        self.shares = self._calc_shares(self.transactions, self.history, self.reinvest)
+        self.shares = self._calc_shares(self.transactions, self.history, self.reinvest, self.dividend)
         return self.shares
 
     @staticmethod
-    def _calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False):
+    def _calc_shares(transactions: TransactionHistory, history: History = None, reinvest=False, dividend=None):
         shares = {min(transactions) - timedelta(1): 0}
         s = 0
-        for k in sorted(transactions):
-            if transactions.type == TransactionType.Shares:
-                s += transactions[k]
-            elif transactions.type == TransactionType.Cash:
-                # TODO: Handle exceptions
-                price = history.get_latest(k).close
-                s += transactions[k] / price
-            else:
-                # Unsupported transaction type
-                pass
-            shares[k] = s
+        if reinvest and dividend is not None:
+            div_dates = sorted(dividend)
+            # Find first applicable dividend date (shares > 0)
+            i = 0
+            while div_dates[i] < min(transactions):
+                i += 1
 
-        if reinvest:
-            # TODO reinvest dividend
-            pass
-
+            for k in sorted(transactions):
+                # Calculate dividend up to k
+                while (k >= div_dates[i]) and (i < len(div_dates)):
+                    # Reinvest dividend
+                    if dividend.type == TransactionType.Shares:
+                        s += s * dividend[div_dates[i]]
+                    elif dividend.type == TransactionType.Cash:
+                        price = history.get_latest(div_dates[i]).close
+                        s += s * dividend[div_dates[i]] / price
+                    else:
+                        # Unsupported transaction type
+                        pass
+                    shares[div_dates[i]] = s
+                    i += 1
+                # Process transaction
+                if transactions.type == TransactionType.Shares:
+                    s += transactions[k]
+                elif transactions.type == TransactionType.Cash:
+                    # TODO: Handle exceptions
+                    price = history.get_latest(k).close
+                    s += transactions[k] / price
+                else:
+                    # Unsupported transaction type
+                    pass
+                shares[k] = s
+        else:
+            for k in sorted(transactions):
+                if transactions.type == TransactionType.Shares:
+                    s += transactions[k]
+                elif transactions.type == TransactionType.Cash:
+                    # TODO: Handle exceptions
+                    price = history.get_latest(k).close
+                    s += transactions[k] / price
+                else:
+                    # Unsupported transaction type
+                    pass
+                shares[k] = s
         return shares
 
     def calc_cost(self):
