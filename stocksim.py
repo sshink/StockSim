@@ -27,6 +27,14 @@ DataMode = Enum("Mode", "CSV JSON")
 TransactionType = Enum("TransactionType", "Cash Shares")
 
 
+def floatornone(s):
+    return None if s is None else float(s)
+
+
+def intornone(s):
+    return None if s is None else int(s)
+
+
 class StockHistory(dict):
     HistoryData = namedtuple("HistoryData", "open, high, low, close, volume")
 
@@ -44,8 +52,9 @@ class StockHistory(dict):
             # self = dict()
             for row in r:
                 d = datetime.strptime(list(row.values())[0], "%Y-%m-%d").date()
-                self[d] = StockHistory.HistoryData(float(row["open"]), float(row["high"]), float(row["low"]),
-                                                   float(row["close"]), int(row["volume"]))
+                self[d] = StockHistory.HistoryData(floatornone(row.get("open")), floatornone(row.get("high")),
+                                                   floatornone(row.get("low")),
+                                                   floatornone(row.get("close")), intornone(row.get("volume")))
                 # print(d, self[d])
         elif mode == DataMode.JSON:
             # Not implemented
