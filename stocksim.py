@@ -375,8 +375,7 @@ class Portfolio:
         self.gainp = {date.min: 0}
 
 
-def main():
-    # Parse arguments
+def parse_args():
     parser = argparse.ArgumentParser(description="TODO")
     parser.add_argument("transactions", help="File containing transaction data")
     parser.add_argument("history", nargs='?', default="history.txt",
@@ -385,8 +384,13 @@ def main():
     parser.add_argument('-j', '--json', action="store_true",
                         help="History data is stored in JSON.")
     parser.add_argument('-o', '--output')
-
     args = parser.parse_args()
+    return args
+
+
+def main():
+    # Parse arguments
+    args = parse_args()
 
     if args.json:
         mode = DataMode.JSON
