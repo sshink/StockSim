@@ -144,6 +144,15 @@ class Stock:
         self.gain = {date.min: 0}
         self.gainp = {date.min: 0}
 
+    def load_files(self, history, transactions, dividend=None, mode=DataMode.CSV):
+        with open(history) as file:
+            self.history.load(file.read(), mode)
+        with open(transactions) as file:
+            self.transactions.load(file.read(), mode)
+        with open(dividend) as file:
+            self.history.dividend = DividendHistory()
+            self.history.dividend.load(file.read())
+
     def calc_shares(self):
         self.shares = self._calc_shares(self.transactions, self.history, self.reinvest)
         return self.shares
@@ -308,6 +317,41 @@ class Stock:
                 gainp[d] = gain[d] / c
         return gainp
 
+    def calc(self):
+        self.calc_shares()
+        self.calc_value()
+        self.calc_cost()
+        self.calc_gain()
+        self.calc_gainp()
+
+    def output(self, output):
+        csvwriter = csv.writer(output)
+
+        print(file=output)
+        print("---- Shares ----", file=output)
+        csvwriter.writerow(["Date", "Shares"])
+        csvwriter.writerows(sorted(self.shares.items()))
+
+        print(file=output)
+        print("---- Value ----", file=output)
+        csvwriter.writerow(["Date", "Value"])
+        csvwriter.writerows(sorted(self.value.items()))
+
+        print(file=output)
+        print("---- Cost ----", file=output)
+        csvwriter.writerow(["Date", "Cost"])
+        csvwriter.writerows(sorted(self.cost.items()))
+
+        print(file=output)
+        print("---- Gain ----", file=output)
+        csvwriter.writerow(["Date", "Gain"])
+        csvwriter.writerows(sorted(self.gain.items()))
+
+        print(file=output)
+        print("---- Gain (%) ----", file=output)
+        csvwriter.writerow(["Date", "Gain (%)"])
+        csvwriter.writerows(sorted(self.gainp.items()))
+
 
 class StockSim:
     def __init__(self):
@@ -350,67 +394,12 @@ def main():
         mode = DataMode.CSV
 
     stock = Stock()
+    stock.load_files(args.history, args.transactions, args.dividend, mode)
+    stock.reinvest = True
+    stock.calc()
 
-    with open(args.history) as file:
-        # Load history
-        stock.history.load(file.read(), mode)
-
-    with open(args.transactions) as file:
-        stock.transactions.load(file.read(), mode)
-
-    with open(args.dividend) as file:
-        # Load dividend
-        stock.history.dividend = DividendHistory()
-        stock.history.dividend.load(file.read())
-
-    with open(args.output, 'w', newline='') if isinstance(args.output, str) else sys.stdout as output:
-        csvwriter = csv.writer(output)
-
-        # Calculate shares
-        print(file=output)
-        print("---- Shares ----", file=output)
-        stock.reinvest = True
-        stock.calc_shares()
-        # for i in sorted(stock.shares.items()):
-        #     print(i, file=output)
-        csvwriter.writerow(["Date", "Shares"])
-        csvwriter.writerows(sorted(stock.shares.items()))
-
-        # Calculate value
-        print(file=output)
-        print("---- Value ----", file=output)
-        stock.calc_value()
-        # for i in sorted(stock.value.items()):
-        #     print(i, file=output)
-        csvwriter.writerow(["Date", "Value"])
-        csvwriter.writerows(sorted(stock.value.items()))
-
-        # Calculate cost
-        print(file=output)
-        print("---- Cost ----", file=output)
-        stock.calc_cost()
-        # for i in sorted(stock.cost.items()):
-        #     print(i, file=output)
-        csvwriter.writerow(["Date", "Cost"])
-        csvwriter.writerows(sorted(stock.cost.items()))
-
-        # Calculate gain
-        print(file=output)
-        print("---- Gain ----", file=output)
-        stock.calc_gain()
-        # for i in sorted(stock.gain.items()):
-        #     print(i, file=output)
-        csvwriter.writerow(["Date", "Gain"])
-        csvwriter.writerows(sorted(stock.gain.items()))
-
-        # Calculate gain ratio
-        print(file=output)
-        print("---- Gain (%) ----", file=output)
-        stock.calc_gainp()
-        # for i in sorted(stock.gainp.items()):
-        #     print(i, file=output)
-        csvwriter.writerow(["Date", "Gain (%)"])
-        csvwriter.writerows(sorted(stock.gainp.items()))
+    with open(args.output, 'w', newline='') if isinstance(args.output, str) else sys.stdout as out:
+        stock.output(out)
 
 
 if __name__ == "__main__":
