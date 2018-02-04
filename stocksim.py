@@ -160,18 +160,22 @@ class Stock:
 
             for k in sorted(transactions):
                 # Calculate dividend up to k
-                while (k >= div_dates[i]) and (i < len(div_dates)):
-                    # Reinvest dividend
-                    if history.dividend.type == TransactionType.Shares:
-                        s += s * history.dividend[div_dates[i]]
-                    elif history.dividend.type == TransactionType.Cash:
-                        price = history.get_latest(div_dates[i]).close
-                        s += s * history.dividend[div_dates[i]] / price
-                    else:
-                        # Unsupported transaction type
-                        pass
-                    shares[div_dates[i]] = s
-                    i += 1
+                if i < len(div_dates):
+                    while k >= div_dates[i]:
+                        # Reinvest dividend
+                        if history.dividend.type == TransactionType.Shares:
+                            s += s * history.dividend[div_dates[i]]
+                        elif history.dividend.type == TransactionType.Cash:
+                            price = history.get_latest(div_dates[i]).close
+                            s += s * history.dividend[div_dates[i]] / price
+                        else:
+                            # Unsupported transaction type
+                            pass
+                        shares[div_dates[i]] = s
+                        i += 1
+                        if i >= len(div_dates):
+                            break
+                        print(i)
                 # Process transaction
                 if transactions.type == TransactionType.Shares:
                     s += transactions[k]
