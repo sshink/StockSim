@@ -22,6 +22,7 @@ from collections import namedtuple
 from enum import Enum
 from datetime import date, datetime, timedelta
 import csv
+import sys
 
 DataMode = Enum("Mode", "CSV JSON")
 TransactionType = Enum("TransactionType", "Cash Shares")
@@ -360,6 +361,56 @@ def main():
         # Load dividend
         stock.history.dividend = DividendHistory()
         stock.history.dividend.load(file.read())
+
+    output = sys.stdout
+
+    csvwriter = csv.writer(output)
+
+    # Calculate shares
+    print(file=output)
+    print("---- Shares ----", file=output)
+    stock.reinvest = True
+    stock.calc_shares()
+    # for i in sorted(stock.shares.items()):
+    #     print(i, file=output)
+    csvwriter.writerow(["Date", "Shares"])
+    csvwriter.writerows(sorted(stock.shares.items()))
+
+    # Calculate value
+    print(file=output)
+    print("---- Value ----", file=output)
+    stock.calc_value()
+    # for i in sorted(stock.value.items()):
+    #     print(i, file=output)
+    csvwriter.writerow(["Date", "Value"])
+    csvwriter.writerows(sorted(stock.value.items()))
+
+    # Calculate cost
+    print(file=output)
+    print("---- Cost ----", file=output)
+    stock.calc_cost()
+    # for i in sorted(stock.cost.items()):
+    #     print(i, file=output)
+    csvwriter.writerow(["Date", "Cost"])
+    csvwriter.writerows(sorted(stock.cost.items()))
+
+    # Calculate gain
+    print(file=output)
+    print("---- Gain ----", file=output)
+    stock.calc_gain()
+    # for i in sorted(stock.gain.items()):
+    #     print(i, file=output)
+    csvwriter.writerow(["Date", "Gain"])
+    csvwriter.writerows(sorted(stock.gain.items()))
+
+    # Calculate gain ratio
+    print(file=output)
+    print("---- Gain (%) ----", file=output)
+    stock.calc_gainp()
+    # for i in sorted(stock.gainp.items()):
+    #     print(i, file=output)
+    csvwriter.writerow(["Date", "Gain (%)"])
+    csvwriter.writerows(sorted(stock.gainp.items()))
 
 
 if __name__ == "__main__":
