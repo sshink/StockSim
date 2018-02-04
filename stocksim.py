@@ -308,11 +308,22 @@ class StockSim:
     # Remove stock
 
 
+class Portfolio:
+    def __init__(self):
+        super(Portfolio, self).__init__()
+        self.cost = {date.min: 0}
+        self.value = {date.min: 0}
+        self.gain = {date.min: 0}
+        self.gainp = {date.min: 0}
+
+
 def main():
     # Parse arguments
     parser = argparse.ArgumentParser(description="TODO")
+    parser.add_argument("transactions", help="File containing transaction data")
     parser.add_argument("history", nargs='?', default="history.txt",
                         help="File containing history data")
+    parser.add_argument("dividend", nargs='?', help="File containing transaction data")
     parser.add_argument('-j', '--json', action="store_true",
                         help="History data is stored in JSON.")
 
@@ -323,9 +334,19 @@ def main():
     else:
         mode = DataMode.CSV
 
-    h = StockHistory()
-    with open(args.history) as f:
-        h.load(f.read(), mode)
+    stock = Stock()
+
+    with open(args.history) as file:
+        # Load history
+        stock.history.load(file.read(), mode)
+
+    with open(args.transactions) as file:
+        stock.transactions.load(file.read(), mode)
+
+    with open(args.dividend) as file:
+        # Load dividend
+        stock.history.dividend = DividendHistory()
+        stock.history.dividend.load(file.read())
 
 
 if __name__ == "__main__":
