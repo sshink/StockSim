@@ -66,7 +66,11 @@ class StockHistory(dict):
             jsondata = json.loads(data)
             for eoddata in jsondata.get("results").get("history")[0].get("eoddata"):
                 d = datetime.strptime(eoddata.get("date"), "%Y-%m-%d").date()
-                self[d] = StockHistory.HistoryData(None, None, None, floatornone(eoddata.get("close")), intornone(eoddata.get("sharevolume")))
+                self[d] = StockHistory.HistoryData(floatornone(eoddata.get("unadjustedopen")),
+                                                   floatornone(eoddata.get("unadjustedhigh")),
+                                                   floatornone(eoddata.get("unadjustedlow")),
+                                                   floatornone(eoddata.get("unadjustedclose")),
+                                                   intornone(eoddata.get("sharevolume")))
         else:
             # Unsupported mode
             pass
