@@ -44,6 +44,9 @@ class StockHistory(dict):
         super(StockHistory, self).__init__()
         self.dividend = None
 
+    def init_dividend(self):
+        self.dividend = DividendHistory()
+
     def load(self, data, mode=DataMode.CSV):
         # print("Mode: " + mode.name)
         if mode == DataMode.CSV:
@@ -157,8 +160,8 @@ class Stock:
         with open(transactions) as file:
             self.transactions.load(file.read(), mode)
         with open(dividend) as file:
-            self.history.dividend = DividendHistory()
-            self.history.dividend.load(file.read())
+            self.history.init_dividend()
+            self.history.dividend.load(file.read(), mode)
 
     def calc_shares(self):
         self.shares = self._calc_shares(self.transactions, self.history, self.reinvest)
