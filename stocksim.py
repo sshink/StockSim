@@ -18,6 +18,7 @@
 # along with StockSim.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
 from collections import namedtuple
 from enum import Enum
 from datetime import date, datetime, timedelta
@@ -58,8 +59,11 @@ class StockHistory(dict):
                                                    floatornone(row.get("close")), intornone(row.get("volume")))
                 # print(d, self[d])
         elif mode == DataMode.JSON:
-            # Not implemented
-            pass
+            # QuoteMedia JSON
+            jsondata = json.loads(data)
+            for eoddata in jsondata["results"]["history"]["eoddata"]:
+                d = datetime.strptime(eoddata["date"], "%Y-%m-%d").date()
+                self[d] = StockHistory.HistoryData(None, None, None, floatornone(eoddata["close"]), intornone(eoddata["sharevolume"]))
         else:
             # Unsupported mode
             pass
@@ -98,8 +102,11 @@ class DividendHistory(dict):
                 if v > 0:
                     self[d] = v
         elif mode == DataMode.JSON:
-            # Not implemented
-            pass
+            # QuoteMedia JSON
+            jsondata = json.loads(data)
+            for dividend in jsondata["results"]["dividends"]["dividend"]:
+                d = datetime.strptime(dividend["date"], "%Y-%m-%d").date()
+                self[d] = floatornone(dividend["amount"])
         else:
             # Unsupported mode
             pass
