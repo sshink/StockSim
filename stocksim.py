@@ -61,9 +61,9 @@ class StockHistory(dict):
         elif mode == DataMode.JSON:
             # QuoteMedia JSON
             jsondata = json.loads(data)
-            for eoddata in jsondata["results"]["history"]["eoddata"]:
-                d = datetime.strptime(eoddata["date"], "%Y-%m-%d").date()
-                self[d] = StockHistory.HistoryData(None, None, None, floatornone(eoddata["close"]), intornone(eoddata["sharevolume"]))
+            for eoddata in jsondata.get("results").get("history")[0].get("eoddata"):
+                d = datetime.strptime(eoddata.get("date"), "%Y-%m-%d").date()
+                self[d] = StockHistory.HistoryData(None, None, None, floatornone(eoddata.get("close")), intornone(eoddata.get("sharevolume")))
         else:
             # Unsupported mode
             pass
@@ -104,9 +104,9 @@ class DividendHistory(dict):
         elif mode == DataMode.JSON:
             # QuoteMedia JSON
             jsondata = json.loads(data)
-            for dividend in jsondata["results"]["dividends"]["dividend"]:
-                d = datetime.strptime(dividend["date"], "%Y-%m-%d").date()
-                self[d] = floatornone(dividend["amount"])
+            for dividend in jsondata.get("results").get("dividends")[0].get("dividend"):
+                d = datetime.strptime(dividend.get("date"), "%Y-%m-%d").date()
+                self[d] = floatornone(dividend.get("amount"))
         else:
             # Unsupported mode
             pass
