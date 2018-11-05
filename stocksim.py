@@ -199,7 +199,6 @@ class Stock:
                         i += 1
                         if i >= len(div_dates):
                             break
-                        print(i)
                 # Process transaction
                 if transactions.type == TransactionType.Shares:
                     s += transactions[k]
