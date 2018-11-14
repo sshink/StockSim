@@ -19,7 +19,7 @@
 
 import argparse
 import json
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from enum import Enum
 from datetime import date, datetime, timedelta
 import csv
@@ -144,8 +144,7 @@ class TransactionHistory(dict):
 
 
 class Stock:
-    # Return
-    # Reinvest
+    StockData = namedtuple("StockData", "shares, value, cost, gain, gainp")
 
     def __init__(self):
         super(Stock, self).__init__()
@@ -157,6 +156,7 @@ class Stock:
         self.value = {date.min: 0}
         self.gain = {date.min: 0}
         self.gainp = {date.min: 0}
+        self.data = {date.min: 0}
 
     def load_files(self, history, transactions, dividend=None, mode=DataMode.CSV):
         with open(history) as file:
@@ -336,6 +336,7 @@ class Stock:
         self.calc_cost()
         self.calc_gain()
         self.calc_gainp()
+        self.calc_data()
 
     def output(self, output):
         csvwriter = csv.writer(output)
@@ -364,6 +365,39 @@ class Stock:
         print("---- Gain (%) ----", file=output)
         csvwriter.writerow(["Date", "Gain (%)"])
         csvwriter.writerows(sorted(self.gainp.items()))
+
+    def calc_data(self):
+        self.data = OrderedDict(dict.fromkeys(sorted(self.value.keys())))
+        for k in self.data.keys():
+            self.data[k] = self._calc_data(k)
+
+    def _calc_data(self, date):
+        return Stock.StockData(self.get_shares(date), self.get_value(date), self.get_cost(date), self.get_gain(date),
+                               self.get_gainp(date))
+
+    def get_gainp(self, date):
+        return Stock._get_latest(self.gainp, date)
+
+    def get_gain(self, date):
+        return Stock._get_latest(self.gain, date)
+
+    def get_cost(self, date):
+        return Stock._get_latest(self.cost, date)
+
+    def get_value(self, date):
+        return Stock._get_latest(self.value, date)
+
+    def get_shares(self, date):
+        return Stock._get_latest(self.shares, date)
+
+    @staticmethod
+    def _get_latest(d: dict, date: date):
+        if date in d:
+            return d[date]
+        elif date > min(d.keys()):
+            return d[max([d for d in d.keys() if d < date])]
+        else:
+            return None
 
 
 class StockSim:
