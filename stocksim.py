@@ -173,7 +173,7 @@ class Stock:
 
     @staticmethod
     def _calc_shares(transactions: TransactionHistory, history: StockHistory = None, reinvest=False):
-        shares = {min(transactions) - timedelta(1): 0}
+        shares = {}
         s = 0
         if reinvest and history.dividend is not None:
             div_dates = sorted(history.dividend)
@@ -245,7 +245,7 @@ class Stock:
 
     @staticmethod
     def _calc_cost(transactions: TransactionHistory, history: StockHistory = None):
-        cost = {min(transactions) - timedelta(1): 0}
+        cost = {}
         s = 0
         for k in sorted(transactions):
             if transactions.type == TransactionType.Shares:
